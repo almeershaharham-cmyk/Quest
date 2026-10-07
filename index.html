@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUEST — English AI Tutor</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+:root{
+    --bg:#02060d;
+    --panel:#07101c;
+    --line:rgba(72,220,255,.16);
+    --cyan:#48e7ff;
+    --purple:#786cff;
+    --green:#49f0a0;
+    --red:#ff4f70;
+    --white:#effaff;
+    --muted:#71899c;
+}
+
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at 70% -10%,rgba(20,110,180,.22),transparent 35%),
+        radial-gradient(circle at 0 100%,rgba(0,210,255,.07),transparent 30%),
+        var(--bg);
+    color:var(--white);
+    font-family:Segoe UI,Arial,sans-serif;
+    overflow:hidden;
+}
+
+button,input{
+    font-family:inherit;
+}
+
+.app{
+    height:100vh;
+    display:grid;
+    grid-template-columns:255px 1fr;
+}
+
+.sidebar{
+    background:rgba(2,7,14,.9);
+    border-right:1px solid var(--line);
+    padding:22px;
+    position:relative;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:35px;
+}
+
+.brandIcon{
+    width:46px;
+    height:46px;
+    border-radius:14px;
+    display:grid;
+    place-items:center;
+    font-size:23px;
+    font-weight:900;
+    color:#001018;
+    background:linear-gradient(135deg,var(--cyan),var(--purple));
+    box-shadow:0 0 30px rgba(72,231,255,.25);
+}
+
+.brandName{
+    font-size:21px;
+    letter-spacing:4px;
+    font-weight:900;
+}
+
+.brandSub{
+    color:var(--muted);
+    font-size:8px;
+    letter-spacing:2px;
+    margin-top:3px;
+}
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.navBtn{
+    border:1px solid transparent;
+    background:transparent;
+    color:#8198a9;
+    text-align:left;
+    padding:14px;
+    border-radius:13px;
+    cursor:pointer;
+    transition:.2s;
+    font-size:13px;
+}
+
+.navBtn:hover{
+    color:white;
+    background:rgba(72,231,255,.05);
+}
+
+.navBtn.active{
+    color:white;
+    border-color:rgba(72,231,255,.18);
+    background:linear-gradient(
+        90deg,
+        rgba(72,231,255,.11),
+        rgba(120,108,255,.06)
+    );
+    box-shadow:inset 3px 0 var(--cyan);
+}
+
+.navIcon{
+    margin-right:9px;
+}
+
+.system{
+    position:absolute;
+    bottom:20px;
+    left:20px;
+    right:20px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:13px;
+    background:rgba(255,255,255,.02);
+}
+
+.systemTop{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:11px;
+}
+
+.dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 12px var(--green);
+}
+
+.systemInfo{
+    color:var(--muted);
+    font-size:10px;
+    line-height:1.5;
+    margin-top:7px;
+}
+
+.main{
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+}
+
+.topbar{
+    height:72px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 27px;
+    border-bottom:1px solid var(--line);
+    background:rgba(2,7,14,.6);
+    backdrop-filter:blur(18px);
+}
+
+.modeTitle{
+    font-weight:700;
+    font-size:15px;
+}
+
+.modeSub{
+    color:var(--muted);
+    font-size:10px;
+    margin-top:4px;
+}
+
+.topButtons{
+    display:flex;
+    gap:8px;
+}
+
+.topBtn{
+    border:1px solid var(--line);
+    background:rgba(72,231,255,.04);
+    color:#d7f8ff;
+    padding:9px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:11px;
+}
+
+.content{
+    width:min(1120px,94%);
+    margin:auto;
+    flex:1;
+    padding:25px 0;
+    min-height:0;
+}
+
+.hero{
+    display:flex;
+    align-items:center;
+    gap:27px;
+    margin-bottom:22px;
+}
+
+.orb{
+    flex:none;
+    width:135px;
+    height:135px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    background:
+        radial-gradient(
+            circle,
+            #16415a 0 13%,
+            #0c2539 14% 30%,
+            #071426 31% 48%,
+            transparent 49%
+        );
+    border:1px solid rgba(72,231,255,.3);
+    box-shadow:
+        0 0 35px rgba(72,231,255,.15),
+        inset 0 0 30px rgba(72,231,255,.08);
+    animation:pulse 3s infinite;
+}
+
+@keyframes pulse{
+    50%{
+        transform:scale(1.04);
+        box-shadow:
+            0 0 60px rgba(72,231,255,.2),
+            inset 0 0 40px rgba(72,231,255,.12);
+    }
+}
+
+.orbInner{
+    text-align:center;
+}
+
+.orbInner b{
+    font-size:30px;
+    letter-spacing:4px;
+}
+
+.orbInner span{
+    display:block;
+    color:var(--cyan);
+    font-size:8px;
+    letter-spacing:2px;
+    margin-top:2px;
+}
+
+.hero h1{
+    font-size:clamp(32px,4vw,52px);
+    line-height:1;
+}
+
+.gradient{
+    background:linear-gradient(
+        90deg,
+        var(--cyan),
+        #9b8cff
+    );
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+.hero p{
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.6;
+    max-width:720px;
+    margin-top:12px;
+}
+
+.quick{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin-bottom:12px;
+}
+
+.quick button{
+    background:rgba(255,255,255,.025);
+    border:1px solid var(--line);
+    color:#9eb5c4;
+    padding:8px 11px;
+    border-radius:9px;
+    cursor:pointer;
+    font-size:10px;
+}
+
+.chatPanel{
+    border:1px solid var(--line);
+    background:rgba(7,16,28,.82);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 20px 70px rgba(0,0,0,.3);
+    position:relative;
+}
+
+.chatHeader{
+    height:50px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 17px;
+    border-bottom:1px solid var(--line);
+}
+
+.questName{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:11px;
+    font-weight:700;
+}
+
+.miniQ{
+    width:27px;
+    height:27px;
+    border-radius:8px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(135deg,var(--cyan),var(--purple));
+    color:#001018;
+    font-weight:900;
+}
+
+.ready{
+    color:var(--green);
+    font-size:9px;
+}
+
+.chat{
+    height:390px;
+    overflow-y:auto;
+    padding:20px;
+    scroll-behavior:smooth;
+}
+
+.chat::-webkit-scrollbar{
+    width:5px;
+}
+
+.chat::-webkit-scrollbar-thumb{
+    background:#18394a;
+    border-radius:10px;
+}
+
+.message{
+    display:flex;
+    margin-bottom:15px;
+}
+
+.message.user{
+    justify-content:flex-end;
+}
+
+.bubble{
+    max-width:82%;
+    padding:13px 15px;
+    border-radius:15px;
+    font-size:13px;
+    line-height:1.65;
+    white-space:pre-wrap;
+}
+
+.message.quest .bubble{
+    background:linear-gradient(
+        135deg,
+        rgba(12,29,49,.95),
+        rgba(7,17,31,.95)
+    );
+    border:1px solid var(--line);
+}
+
+.message.user .bubble{
+    background:linear-gradient(
+        135deg,
+        #11516a,
+        #303a7a
+    );
+}
+
+/* SCROLL BUTTON */
+
+.scrollBtn{
+    position:absolute;
+    right:18px;
+    bottom:82px;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    border:1px solid rgba(72,231,255,.35);
+    background:rgba(5,18,30,.94);
+    color:var(--cyan);
+    font-size:20px;
+    cursor:pointer;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:20;
+    box-shadow:0 0 25px rgba(72,231,255,.18);
+    backdrop-filter:blur(10px);
+}
+
+.scrollBtn.show{
+    display:flex;
+}
+
+.scrollBtn:hover{
+    background:rgba(72,231,255,.12);
+    transform:translateY(-2px);
+}
+
+.composer{
+    display:flex;
+    gap:8px;
+    padding:13px;
+    border-top:1px solid var(--line);
+    background:rgba(1,6,12,.5);
+}
+
+.input{
+    flex:1;
+    min-width:0;
+    outline:none;
+    border:1px solid var(--line);
+    background:#040a13;
+    color:white;
+    padding:13px;
+    border-radius:12px;
+    font-size:13px;
+}
+
+.mic{
+    width:48px;
+    min-width:48px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:rgba(72,231,255,.05);
+    color:white;
+    font-size:19px;
+    cursor:pointer;
+}
+
+.mic.listening{
+    color:white;
+    border-color:var(--red);
+    background:rgba(255,79,112,.13);
+    box-shadow:0 0 22px rgba(255,79,112,.25);
+    animation:micPulse 1s infinite;
+}
+
+@keyframes micPulse{
+    50%{
+        transform:scale(1.07);
+    }
+}
+
+.send{
+    width:48px;
+    min-width:48px;
+    border:0;
+    border-radius:12px;
+    background:linear-gradient(
+        135deg,
+        var(--cyan),
+        var(--purple)
+    );
+    color:#001018;
+    font-size:20px;
+    font-weight:900;
+    cursor:pointer;
+}
+
+.send:disabled{
+    opacity:.45;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:9px;
+    margin-top:10px;
+}
+
+.card{
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.02);
+    border-radius:13px;
+    padding:12px;
+}
+
+.cardIcon{
+    font-size:16px;
+}
+
+.cardTitle{
+    font-size:11px;
+    font-weight:700;
+    margin-top:7px;
+}
+
+.cardText{
+    color:var(--muted);
+    font-size:9px;
+    line-height:1.4;
+    margin-top:3px;
+}
+
+.typing{
+    display:flex;
+    gap:5px;
+}
+
+.typing span{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--cyan);
+    animation:typeDot 1s infinite;
+}
+
+.typing span:nth-child(2){
+    animation-delay:.15s;
+}
+
+.typing span:nth-child(3){
+    animation-delay:.3s;
+}
+
+@keyframes typeDot{
+    50%{
+        opacity:.2;
+        transform:translateY(-3px);
+    }
+}
+
+@media(max-width:850px){
+
+    body{
+        overflow:auto;
+    }
+
+    .app{
+        display:block;
+        height:auto;
+        min-height:100vh;
+    }
+
+    .sidebar{
+        display:none;
+    }
+
+    .main{
+        min-height:100vh;
+        height:auto;
+    }
+
+    .content{
+        padding:20px 0;
+    }
+
+    .hero{
+        text-align:center;
+        flex-direction:column;
+    }
+
+    .chat{
+        height:52vh;
+        min-height:350px;
+    }
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:500px){
+
+    .topbar{
+        padding:0 12px;
+    }
+
+    .hero h1{
+        font-size:34px;
+    }
+
+    .cards{
+        grid-template-columns:1fr;
+    }
+
+    .bubble{
+        max-width:90%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+
+    <div class="brand">
+        <div class="brandIcon">Q</div>
+        <div>
+            <div class="brandName">QUEST</div>
+            <div class="brandSub">AI LEARNING CORE</div>
+        </div>
+    </div>
+
+    <div class="nav">
+
+        <button class="navBtn active" data-mode="learn">
+            ◈ <span class="navIcon">Learn with Quest</span>
+        </button>
+
+        <button class="navBtn" data-mode="quiz">
+            ◉ <span class="navIcon">Quiz Mode</span>
+        </button>
+
+        <button class="navBtn" data-mode="paper">
+            ▣ <span class="navIcon">Paper Mode</span>
+        </button>
+
+        <button class="navBtn" data-mode="ask">
+            ◎ <span class="navIcon">Ask Quest</span>
+        </button>
+
+    </div>
+
+    <div class="system">
+
+        <div class="systemTop">
+            <span class="dot"></span>
+            <span id="systemText">QUEST ONLINE</span>
+        </div>
+
+        <div class="systemInfo">
+            Class 8<br>
+            English Mid-Term AI
+        </div>
+
+    </div>
+
+</aside>
+
+
+<main class="main">
+
+<header class="topbar">
+
+    <div>
+        <div class="modeTitle" id="modeTitle">
+            Learn with Quest
+        </div>
+
+        <div class="modeSub">
+            Class 8 • English Mid-Term
+        </div>
+    </div>
+
+    <div class="topButtons">
+
+        <button class="topBtn" id="voiceOutput">
+            🔊 Voice ON
+        </button>
+
+        <button class="topBtn" id="clearBtn">
+            Clear
+        </button>
+
+    </div>
+
+</header>
+
+
+<div class="content">
+
+<section class="hero">
+
+    <div class="orb">
+        <div class="orbInner">
+            <b>Q</b>
+            <span>ONLINE</span>
+        </div>
+    </div>
+
+    <div>
+
+        <h1>
+            Your Exam.
+            <span class="gradient">Your Quest.</span>
+        </h1>
+
+        <p>
+            Your intelligent Class 8 English tutor.
+            Type your question or press the microphone and
+            talk naturally with QUEST.
+        </p>
+
+    </div>
+
+</section>
+
+
+<div class="quick">
+
+    <button data-text="Tenses ko easy Roman Urdu mein samjhao.">
+        Tenses
+    </button>
+
+    <button data-text="Mujhe 5 MCQs do.">
+        5 MCQs
+    </button>
+
+    <button data-text="Active Voice aur Passive Voice samjhao.">
+        Voice
+    </button>
+
+    <button data-text="Mujhe vocabulary practice karwao.">
+        Vocabulary
+    </button>
+
+    <button data-text="Mera Class 8 English Mid-Term practice paper banao.">
+        Practice Paper
+    </button>
+
+</div>
+
+
+<section class="chatPanel">
+
+    <div class="chatHeader">
+
+        <div class="questName">
+            <div class="miniQ">Q</div>
+            QUEST CORE
+        </div>
+
+        <div class="ready" id="readyStatus">
+            ● READY
+        </div>
+
+    </div>
+
+
+    <div class="chat" id="chat">
+
+        <div class="message quest">
+
+            <div class="bubble">Assalam-o-Alaikum! 👋
+
+I'm QUEST, your Class 8 English AI tutor.
+
+You can TYPE your question or press 🎙️ and SPEAK.
+
+For example:
+
+"Tenses ko easy Urdu mein samjhao."
+
+"Give me 5 MCQs."
+
+"Quiz start karo."
+
+"Mera answer check karo."
+
+"Paper banao."
+
+"Central idea explain karo."
+
+Go ahead.</div>
+
+        </div>
+
+    </div>
+
+
+    <!-- FLOATING SCROLL BUTTON -->
+
+    <button
+        class="scrollBtn"
+        id="scrollBtn"
+        title="Scroll to latest">
+        ↓
+    </button>
+
+
+    <div class="composer">
+
+        <button
+            class="mic"
+            id="mic"
+            title="Talk to QUEST">
+            🎙️
+        </button>
+
+        <input
+            class="input"
+            id="input"
+            placeholder="Type or press 🎙️ to speak..."
+            autocomplete="off">
+
+        <button
+            class="send"
+            id="send">
+            ↑
+        </button>
+
+    </div>
+
+</section>
+
+
+<div class="cards">
+
+    <div class="card">
+        <div class="cardIcon">📚</div>
+        <div class="cardTitle">Learn</div>
+        <div class="cardText">
+            Grammar, vocabulary and literature.
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="cardIcon">🧠</div>
+        <div class="cardTitle">Quiz</div>
+        <div class="cardText">
+            Interactive Class 8 questions.
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="cardIcon">📝</div>
+        <div class="cardTitle">Paper</div>
+        <div class="cardText">
+            Generate practice papers.
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="cardIcon">🎙️</div>
+        <div class="cardTitle">Talk</div>
+        <div class="cardText">
+            Speak to QUEST and hear its answer.
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+</main>
+</div>
+
+
+<script>
+
+/* =====================================================
+   ONLY PASTE YOUR GROQ KEY HERE
+   ===================================================== */
+
+const API_KEY = "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";
+
+
+/* =====================================================
+   QUEST KNOWLEDGE
+   ===================================================== */
+
+const QUEST_KNOWLEDGE = `
+
+You are QUEST, a professional Class 8 English AI tutor.
+
+Help the student prepare for English Mid-Term.
+
+Understand English, Urdu and Roman Urdu.
+
+Be natural, accurate and friendly.
+
+==================================================
+TOPICS
+==================================================
+
+ARTICLES:
+A, AN, THE
+
+TENSES:
+Simple Present
+Simple Past
+Simple Future
+Present Continuous
+Past Continuous
+Future Continuous
+
+Teach:
+structure
+helping verbs
+affirmative
+negative
+interrogative
+examples
+common mistakes
+
+TYPES OF SENTENCES:
+Assertive
+Optative
+Interrogative
+Exclamatory
+Imperative
+
+VOICE:
+Active Voice
+Passive Voice
+
+Include affirmative and interrogative sentences
+in all Simple and Continuous Tenses.
+
+PREPOSITIONS:
+in
+on
+at
+under
+over
+beside
+between
+among
+from
+to
+into
+with
+by
+
+PUNCTUATION:
+Full Stop
+Comma
+Question Mark
+Exclamation Mark
+Colon
+Semicolon
+Apostrophe
+Quotation Marks
+Hyphen
+Dash
+Brackets
+
+NARRATION:
+Direct Speech
+Indirect Speech
+
+Include affirmative and interrogative sentences
+in Simple and Continuous Tenses.
+
+PARTS OF SPEECH:
+Noun
+Pronoun
+Verb
+Adjective
+Adverb
+Preposition
+Conjunction
+Interjection
+
+==================================================
+VOCABULARY
+==================================================
+
+concocting
+huddled
+shoved
+claiming
+inflamed
+portish
+exaggeration
+smattering
+dilemma
+reverently
+conviction
+thrilled
+fragment
+intended
+constitute
+descend
+routed
+slumber
+barrier
+aids
+
+Give:
+meaning
+synonym
+example
+Roman Urdu explanation when requested.
+
+For "portish", do not invent a meaning.
+Tell the student to verify the textbook spelling.
+
+==================================================
+FIGURATIVE EXPRESSIONS
+==================================================
+
+fat lies
+dazzle in class
+smattering of the truth
+huddled over
+make a par with
+flooded with questions
+stick to the truth
+a light went on in the head
+
+==================================================
+LITERATURE
+==================================================
+
+Yusuf bin Tashfin
+
+Focus on:
+courage
+determination
+discipline
+strategic thinking
+responsibility
+justice
+unity
+
+Windows to the Soul
+
+Prepare:
+central idea
+short questions
+long questions
+explanations
+answer checking
+
+Parents Make Difference
+
+Prepare:
+central idea
+short questions
+long questions
+explanations
+answer checking
+
+Do not invent exact textbook wording.
+
+==================================================
+CENTRAL IDEA
+==================================================
+
+The exact textbook central ideas were not supplied.
+
+Never claim invented wording is the exact textbook answer.
+
+If student writes more than 4 lines:
+do not automatically mark it wrong.
+
+Check relevance, accuracy, grammar, clarity
+and exam suitability.
+
+If correct but long:
+give a concise exam-ready version.
+
+==================================================
+QUIZ
+==================================================
+
+Ask one question at a time unless multiple questions are requested.
+
+Do not reveal the answer before the student attempts it.
+
+After the attempt:
+say correct/incorrect,
+give the correct answer,
+explain briefly,
+continue.
+
+==================================================
+PAPER
+==================================================
+
+Create Class 8 English Mid-Term practice papers
+using only the supplied syllabus.
+
+When checking:
+calculate marks,
+explain mistakes,
+give improvement advice.
+
+==================================================
+STYLE
+==================================================
+
+If student asks Urdu, answer Urdu.
+
+If student asks Roman Urdu, answer Roman Urdu.
+
+If student asks English, answer English.
+
+Keep explanations Class 8 level.
+
+Do not repeatedly say "I am an AI".
+
+Your name is QUEST.
+
+`;
+
+
+/* =====================================================
+   VARIABLES
+   ===================================================== */
+
+let currentMode = "learn";
+let voiceOutputEnabled = true;
+let conversation = [];
+let recognition = null;
+let listening = false;
+
+
+/* =====================================================
+   ELEMENTS
+   ===================================================== */
+
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
+const mic = document.getElementById("mic");
+
+const scrollBtn =
+    document.getElementById("scrollBtn");
+
+const voiceOutput =
+    document.getElementById("voiceOutput");
+
+const clearBtn =
+    document.getElementById("clearBtn");
+
+const modeTitle =
+    document.getElementById("modeTitle");
+
+const readyStatus =
+    document.getElementById("readyStatus");
+
+const systemText =
+    document.getElementById("systemText");
+
+
+/* =====================================================
+   MODE BUTTONS
+   ===================================================== */
+
+document.querySelectorAll(".navBtn")
+.forEach(btn => {
+
+    btn.addEventListener("click", () => {
+
+        document.querySelectorAll(".navBtn")
+        .forEach(x =>
+            x.classList.remove("active")
+        );
+
+        btn.classList.add("active");
+
+        currentMode =
+            btn.dataset.mode;
+
+        const names = {
+            learn:"Learn with Quest",
+            quiz:"Quiz Mode",
+            paper:"Paper Mode",
+            ask:"Ask Quest"
+        };
+
+        modeTitle.textContent =
+            names[currentMode];
+
+    });
+
+});
+
+
+/* =====================================================
+   QUICK BUTTONS
+   ===================================================== */
+
+document.querySelectorAll(".quick button")
+.forEach(btn => {
+
+    btn.addEventListener("click", () => {
+
+        input.value =
+            btn.dataset.text;
+
+        input.focus();
+
+    });
+
+});
+
+
+/* =====================================================
+   SEND
+   ===================================================== */
+
+send.addEventListener(
+    "click",
+    sendMessage
+);
+
+input.addEventListener(
+    "keydown",
+    event => {
+
+        if(event.key === "Enter"){
+
+            event.preventDefault();
+
+            sendMessage();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   CLEAR
+   ===================================================== */
+
+clearBtn.addEventListener("click", () => {
+
+    conversation = [];
+
+    if(
+        "speechSynthesis" in window
+    ){
+        speechSynthesis.cancel();
+    }
+
+    chat.innerHTML = "";
+
+    addQuestMessage(
+`Chat cleared.
+
+QUEST is ready.
+
+Type or press 🎙️ to talk.`
+    );
+
+});
+
+
+/* =====================================================
+   VOICE OUTPUT
+   ===================================================== */
+
+voiceOutput.addEventListener("click", () => {
+
+    voiceOutputEnabled =
+        !voiceOutputEnabled;
+
+    if(voiceOutputEnabled){
+
+        voiceOutput.textContent =
+            "🔊 Voice ON";
+
+    }else{
+
+        voiceOutput.textContent =
+            "🔇 Voice OFF";
+
+        if(
+            "speechSynthesis" in window
+        ){
+            speechSynthesis.cancel();
+        }
+
+    }
+
+});
+
+
+/* =====================================================
+   SCROLL BUTTON
+   ===================================================== */
+
+chat.addEventListener("scroll", () => {
+
+    const distanceFromBottom =
+        chat.scrollHeight -
+        chat.scrollTop -
+        chat.clientHeight;
+
+    if(distanceFromBottom > 120){
+
+        scrollBtn.classList.add("show");
+
+    }else{
+
+        scrollBtn.classList.remove("show");
+
+    }
+
+});
+
+
+scrollBtn.addEventListener("click", () => {
+
+    chat.scrollTo({
+        top:chat.scrollHeight,
+        behavior:"smooth"
+    });
+
+});
+
+
+function scrollToBottom(){
+
+    chat.scrollTo({
+        top:chat.scrollHeight,
+        behavior:"smooth"
+    });
+
+}
+
+
+/* =====================================================
+   SPEECH RECOGNITION
+   ===================================================== */
+
+const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+
+if(SpeechRecognition){
+
+    recognition =
+        new SpeechRecognition();
+
+    recognition.continuous = false;
+
+    recognition.interimResults = true;
+
+    recognition.lang = "en-US";
+
+
+    recognition.onstart = () => {
+
+        listening = true;
+
+        mic.classList.add("listening");
+
+        mic.textContent = "🔴";
+
+        input.placeholder =
+            "Listening...";
+
+        readyStatus.textContent =
+            "● LISTENING";
+
+        readyStatus.style.color =
+            "var(--red)";
+
+        systemText.textContent =
+            "LISTENING...";
+
+    };
+
+
+    recognition.onresult = event => {
+
+        let finalText = "";
+
+        let interimText = "";
+
+
+        for(
+            let i = event.resultIndex;
+            i < event.results.length;
+            i++
+        ){
+
+            const transcript =
+                event.results[i][0].transcript;
+
+
+            if(
+                event.results[i].isFinal
+            ){
+
+                finalText += transcript;
+
+            }else{
+
+                interimText += transcript;
+
+            }
+
+        }
+
+
+        const text =
+            (
+                finalText ||
+                interimText
+            ).trim();
+
+
+        if(text){
+
+            input.value = text;
+
+        }
+
+
+        /*
+          FINAL SPEECH:
+          automatically send to Groq.
+        */
+
+        if(finalText.trim()){
+
+            setTimeout(() => {
+
+                if(
+                    input.value.trim()
+                ){
+
+                    sendMessage();
+
+                }
+
+            },300);
+
+        }
+
+    };
+
+
+    recognition.onerror = event => {
+
+        console.log(
+            "Speech recognition error:",
+            event.error
+        );
+
+        stopListening();
+
+        if(
+            event.error === "not-allowed"
+        ){
+
+            addQuestMessage(
+                "Microphone permission blocked hai. Chrome/Edge settings mein microphone permission allow karo."
+            );
+
+        }
+
+    };
+
+
+    recognition.onend = () => {
+
+        stopListening();
+
+    };
+
+
+    mic.addEventListener("click", () => {
+
+        if(listening){
+
+            recognition.stop();
+
+        }else{
+
+            try{
+
+                recognition.start();
+
+            }catch(error){
+
+                console.log(error);
+
+            }
+
+        }
+
+    });
+
+}else{
+
+    mic.addEventListener("click", () => {
+
+        addQuestMessage(
+            "Voice input is not supported in this browser. Google Chrome ya Microsoft Edge use karo."
+        );
+
+    });
+
+}
+
+
+/* =====================================================
+   STOP LISTENING
+   ===================================================== */
+
+function stopListening(){
+
+    listening = false;
+
+    mic.classList.remove("listening");
+
+    mic.textContent = "🎙️";
+
+    input.placeholder =
+        "Type or press 🎙️ to speak...";
+
+    readyStatus.textContent =
+        "● READY";
+
+    readyStatus.style.color =
+        "var(--green)";
+
+    systemText.textContent =
+        "QUEST ONLINE";
+
+}
+
+
+/* =====================================================
+   SEND MESSAGE TO GROQ
+   ===================================================== */
+
+async function sendMessage(){
+
+    const question =
+        input.value.trim();
+
+
+    if(!question) return;
+
+
+    if(
+        API_KEY ===
+        "PASTE_YOUR_GROQ_KEY_HERE"
+    ){
+
+        addQuestMessage(
+`Groq API key missing hai.
+
+Code ke top par:
+
+const API_KEY = "PASTE_YOUR_GROQ_KEY_HERE";
+
+sirf us jagah apni key paste karo.`
+        );
+
+        return;
+
+    }
+
+
+    addUserMessage(question);
+
+    input.value = "";
+
+    send.disabled = true;
+
+    showTyping();
+
+
+    conversation.push({
+
+        role:"user",
+        content:question
+
+    });
+
+
+    const modeInstructions = {
+
+        learn:
+            "Teach step-by-step.",
+
+        quiz:
+            "Run an interactive quiz. Ask one question at a time.",
+
+        paper:
+            "Create or evaluate a Class 8 English practice paper.",
+
+        ask:
+            "Answer naturally from the supplied material."
+
+    };
+
+
+    try{
+
+        const response =
+            await fetch(
+                "https://api.groq.com/openai/v1/chat/completions",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " + API_KEY
+                    },
+
+                    body:JSON.stringify({
+
+                        model:
+                            "openai/gpt-oss-120b",
+
+                        messages:[
+                            {
+                                role:"system",
+
+                                content:
+                                    QUEST_KNOWLEDGE +
+                                    "\n\nCURRENT MODE: " +
+                                    currentMode +
+                                    "\n\nINSTRUCTION: " +
+                                    modeInstructions[currentMode]
+                            },
+
+                            ...conversation.slice(-20)
+                        ],
+
+                        temperature:.35,
+
+                        max_completion_tokens:1600
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(!response.ok){
+
+            throw new Error(
+                data?.error?.message ||
+                "Groq request failed."
+            );
+
+        }
+
+
+        const answer =
+            data?.choices?.[0]?.message?.content;
+
+
+        if(!answer){
+
+            throw new Error(
+                "QUEST received an empty answer."
+            );
+
+        }
+
+
+        hideTyping();
+
+        addQuestMessage(answer);
+
+
+        conversation.push({
+
+            role:"assistant",
+            content:answer
+
+        });
+
+
+        if(voiceOutputEnabled){
+
+            speakAnswer(answer);
+
+        }
+
+
+    }catch(error){
+
+        hideTyping();
+
+        console.error(error);
+
+        addQuestMessage(
+            "QUEST connection error:\n\n" +
+            error.message
+        );
+
+    }
+
+
+    send.disabled = false;
+
+    scrollToBottom();
+
+    input.focus();
+
+}
+
+
+/* =====================================================
+   CHAT FUNCTIONS
+   ===================================================== */
+
+function addUserMessage(text){
+
+    addMessage(
+        "user",
+        text
+    );
+
+}
+
+
+function addQuestMessage(text){
+
+    addMessage(
+        "quest",
+        text
+    );
+
+}
+
+
+function addMessage(type,text){
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        "message " + type;
+
+
+    const bubble =
+        document.createElement("div");
+
+    bubble.className =
+        "bubble";
+
+    bubble.textContent =
+        text;
+
+
+    message.appendChild(bubble);
+
+    chat.appendChild(message);
+
+    scrollToBottom();
+
+}
+
+
+/* =====================================================
+   TYPING
+   ===================================================== */
+
+function showTyping(){
+
+    const message =
+        document.createElement("div");
+
+    message.id =
+        "typingMessage";
+
+    message.className =
+        "message quest";
+
+
+    message.innerHTML = `
+        <div class="bubble">
+            <div class="typing">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    `;
+
+
+    chat.appendChild(message);
+
+    scrollToBottom();
+
+}
+
+
+function hideTyping(){
+
+    const typing =
+        document.getElementById(
+            "typingMessage"
+        );
+
+    if(typing){
+
+        typing.remove();
+
+    }
+
+}
+
+
+/* =====================================================
+   TEXT TO SPEECH
+   ===================================================== */
+
+function speakAnswer(text){
+
+    if(
+        !voiceOutputEnabled ||
+        !("speechSynthesis" in window)
+    ){
+
+        return;
+
+    }
+
+
+    speechSynthesis.cancel();
+
+
+    const cleanText =
+        text
+
+        .replace(
+            /```[\s\S]*?```/g,
+            "code omitted"
+        )
+
+        .replace(
+            /[*#_`]/g,
+            ""
+        )
+
+        .replace(
+            /\[([^\]]+)\]\([^)]+\)/g,
+            "$1"
+        )
+
+        .replace(
+            /\n+/g,
+            ". "
+        )
+
+        .trim();
+
+
+    const utterance =
+        new SpeechSynthesisUtterance(
+            cleanText
+        );
+
+
+    const voices =
+        speechSynthesis.getVoices();
+
+
+    let selected =
+        voices.find(
+            v =>
+                /Microsoft|Google|Natural/i
+                .test(v.name)
+                &&
+                /^en/i.test(v.lang)
+        );
+
+
+    if(!selected){
+
+        selected =
+            voices.find(
+                v =>
+                    /^en-US/i.test(v.lang)
+            );
+
+    }
+
+
+    if(!selected){
+
+        selected =
+            voices.find(
+                v =>
+                    /^en/i.test(v.lang)
+            );
+
+    }
+
+
+    if(selected){
+
+        utterance.voice =
+            selected;
+
+        utterance.lang =
+            selected.lang;
+
+    }else{
+
+        utterance.lang =
+            "en-US";
+
+    }
+
+
+    utterance.rate = .9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+
+    speechSynthesis.speak(
+        utterance
+    );
+
+}
+
+
+/* =====================================================
+   VOICES READY
+   ===================================================== */
+
+if(
+    "speechSynthesis" in window
+){
+
+    speechSynthesis.onvoiceschanged =
+        () => {
+
+            speechSynthesis.getVoices();
+
+        };
+
+}
+
+</script>
+
+</body>
+</html>
